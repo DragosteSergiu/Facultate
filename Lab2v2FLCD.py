@@ -19,13 +19,21 @@ class Element:
 class SortedTable:
     def __init__(self):
         self.__table = []
+        
+    def isUniqueToken(self, token):
+        exists = True
+        for element in self.__table: 
+            if element.getToken() == token:
+                exists = False
+        return exists
 
     def addElement(self, token):
         if len(self.__table) == 0:
             element = Element(1, token)
             self.__table.append(element)
         else:
-            self.insertElement(token)
+            if (self.isUniqueToken(token) == True):
+                self.insertElement(token)
 
     def determinePosition(self, token):
         position = 0
