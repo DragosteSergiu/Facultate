@@ -4,104 +4,194 @@ import re
 TOKEN_PATH = 'token.in'
 TOKENS = {}
 SEPARATORS = []
+keywords = ['var', 'read', 'write', 'if', 'while', 'begin', 'end']
 
-def readTokens(TOKEN_PATH):
-    f = open(TOKEN_PATH, 'r')
-    f.readline()
-    i = 1
-    for x in f:
-        if "\n" in x:
-            token = x[0:len(x)-1]
-            TOKENS[token] = i
-        else:
-            TOKENS[x] = i
-        i += 1
-    for key in TOKENS:
-        if len(key) == 1:
-            SEPARATORS.append(key)
+class Handler:
+    def __init__(self, filename):
+        self.__filename = filename
+
+    def readTokens(self):
+        f = open(self.__filename, 'r')
+        f.readline()
+        i = 1
+        for x in f:
+            if "\n" in x:
+                token = x[0:len(x) - 1]
+                TOKENS[token] = i
+            else:
+                TOKENS[x] = i
+            i += 1
+        for key in TOKENS:
+            if len(key) == 1:
+                SEPARATORS.append(key)
+        f.close()
+
+    def updatePIF(self, firstTable: SortedTable, secondTable: list):
+        result = [ ]
+        for elem in secondTable:
+            ok = True
+            for key in firstTable:
+                if key.token == elem.token:
+                    ok = False
+                    newElem = PElement(elem.token, elem.valueInTokens, key.position)
+                    result.append(newElem)
+            if ok == True:
+                result.append(elem)
+        return result
+                    #print(elem.positionInTokens)
+        #print("-----------------------------------------------")
+
+
+class Error:
+    def __init__(self, message):
+        self.__message = message
+
+    @property
+    def message(self):
+        return self.__message
+    @message.setter
+    def message(self, value):
+        self.__message = value
 
 
 
-class PifElement:
+class PElement:
     def __init__(self, token, valueInTokens, valueInST):
         self.__token = token
-        self.__valueInT = valueInTokens
-        self.__valueInST = valueInST
+        self.__valueInTokens = valueInTokens
+        self.__valueInSymbolTable = valueInST
 
-    def getToken(self):
+    @property
+    def token(self):
         return self.__token
-    def setToken(self, value):
+    @token.setter
+    def token(self, value):
         self.__token = value
 
-    def getValueInT(self):
-        return self.__valueInT
-    def setValueInT(self, value):
-        self.__valueInT = value
+    @property
+    def valueInTokens(self):
+        return self.__valueInTokens
+    @valueInTokens.setter
+    def valueInTokens(self, value):
+        self.__valueInTokens = value
 
-    def getValutInST(self):
-        return self.__valueInST
-    def setValueInST(self, value):
-        self.__valueInST = value
+    @property
+    def valueInSymbolTable(self):
+        return self.__valueInSymbolTable
+    @valueInSymbolTable.setter
+    def valueInSymbolTable(self, value):
+        self.__valueInSymbolTable = value
 
     def __str__(self):
-        return "token: " + str(self.__token) + ", value in pif: " + str(self.__valueInT) + ", value in st: " + str(self.__valueInST)
+        return "Token: " + str(self.__token) + " | Value in Tokens: " + str(self.__valueInTokens) + " | Value in Symbol Table: " + str(self.__valueInSymbolTable)
 
-def existsInString(key, str):
-    position = str.find(key)
-    if position < 0:
-        return False
-    else:
-        return True
 
 
 
 class Scanner:
     def __init__(self, FILE_PATH):
-        self.__filePath = FILE_PATH
+        self.__path = FILE_PATH
+        self.__handler = Handler(TOKEN_PATH)
         self.__symbolTable = SortedTable()
-        self.__pif = []
+        self.__PIF = []
 
-    def anotherParse(self, character):
+    def execute(self):
+        self.__handler.readTokens()
+        file = open(self.__path, 'r')
+        previous = ''
+        token = ''
+        character = ''
+        while True:
+            if character != '':
+                prevCharacter = character
+            character = file.read(1)
+
+            if character in SEPARATORS or character == ' ':
+                if token.find('\n') > -1:
+                    new = token.strip()
+                    token = new
+                if previous == 'var' and len(token) > 0 and character in [':']:
+                    self.__symbolTable.addElement(token)
+                    elem = PElement(token, 0, self.__symbolTable.searchByToken(token))
+                    self.__PIF.append(elem)
+                    self.__PIF = self.__handler.updatePIF(self.__symbolTable.table, self.__PIF)
+                    elem = PElement(character, TOKENS[character], -1)
+                    self.__PIF.append(elem)
+                    token = ''
+                    continue
+                if (token == 'read' or token == 'write') and character == '(':
+                    elem = PElement(token, TOKENS[token], -1)
+                    self.__PIF.append(elem)
+                    elem = PElement(character, TOKENS[character], 0)
+                    self.__PIF.append(elem)
+                    token = ''
+                    while 1:
+                        prevCharacter = character
+                        character = file.read(1)
+                        if not character:
+                            break
+                        if character == ')':
+                            if (self.__symbolTable.searchByToken(token) > -1):
+                                elem = PElement(token, 0, self.__symbolTable.searchByToken(token))
+                                self.__PIF.append(elem)
+                                token = ''
+                                elem = PElement(character, TOKENS[character], -1)
+                                self.__PIF.append(elem)
+                                break
+                        if character != ' ':
+                            token = token + character
+                    while 1:
+                        prevCharacter = character
+                        character = file.read(1)
+                        if (character != ' ') and (character != ';'):
+                            break
+                        if (character == ';'):
+                            elem = PElement(character, TOKENS[character], -1)
+                            self.__PIF.append(elem)
+                            break
+
+                if self.__symbolTable.searchByToken(token) > -1:
+                    elem = PElement(token, 0, self.__symbolTable.searchByToken(token))
+                    self.__PIF.append(elem)
+                    while character == ' ':
+                        character = file.read(1)
+                    token = character
+                    prevCharacter = token
+                if (token in TOKENS and token != 'read' and token != 'write') or (prevCharacter+character in TOKENS):
+                    if len(token) > 0:
+                        elem = PElement(token, TOKENS[token], -1)
+                        self.__PIF.append(elem)
+                    if token in keywords:
+                        previous = token
+                    if character != ' ':
+                        elem = PElement(character, TOKENS[character], -1)
+                        self.__PIF.append(elem)
+                    token = ''
+            else:
+                token = token + character
+            if not character:
+                break
+        file.close()
+
+    @property
+    def PIF(self):
         result = [ ]
-        f = open(self.__filePath, 'r')
-        for x in f:
-            parse = re.split(character, x)
-            for elem in parse:
-                if elem != '':
-                    result.append(elem)
+        for elem in self.__PIF:
+            result.append(elem.__str__())
         return result
 
-    def parseTable(self, character, table):
-        result = [ ]
-        for elem in table:
-            parse = re.split(character, elem)
-            for i in parse:
-                result.append(i)
-        return result
+    def SymbolTableToString(self):
+        return self.__symbolTable.toString()
 
 
-    def parseFile(self, tokens):
-        f = open(self.__filePath, 'r')
-        for x in f:
-            for key in tokens:
-                if existsInString(str(key), x) == True:
-                    pifElem = PifElement(key, tokens[key], -1)
-                    self.__pif.append(pifElem)
-
-    def getPif(self):
-        return self.__pif
 
 
 if __name__ == "__main__":
-    readTokens(TOKEN_PATH)
     scanner = Scanner('Program1.txt')
-    result = scanner.anotherParse(' ')
-    for separator in SEPARATORS:
-        res = scanner.parseTable(separator, result)
-        result = res
-    print(result)
-    #scanner.parseFile(TOKENS)
-    #pif = scanner.getPif()
-    #for res in pif:
-        #print(res.__str__())
+    scanner.execute()
+    print("-------------------------------------PIF-------------------------------")
+    for i in scanner.PIF:
+        print(i)
+    print("---------------------------------Symbol Table--------------------------")
+    print(scanner.SymbolTableToString())
 
