@@ -164,6 +164,10 @@ class Scanner:
                         self.__ProgramInternalForm.addElement(element)
                         self.__ProgramInternalForm.list = self.__handler.updatePIF(self.__symbolTable.table, self.__ProgramInternalForm.list)
                         added = True
+                if self.__symbolTable.isUniqueToken(token) == False and added == False:
+                    element = PIFElement(token, 0, self.__symbolTable.searchByToken(token))
+                    self.__ProgramInternalForm.addElement(element)
+                    added = True
 
         file.close()
 
