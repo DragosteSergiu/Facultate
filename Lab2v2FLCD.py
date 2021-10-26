@@ -69,7 +69,7 @@ class SortedTable:
             return -1
 
     def __str__(self):
-        toStr = ""
+        toStr = "--------------------------Symbol Table--------------------------\n"
         for element in self.__table:
             toStr = toStr + "Position: " + str(element.position) + ", Identifier: " + str(element.token) + "\n"
         return toStr
