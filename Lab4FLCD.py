@@ -83,6 +83,12 @@ class FiniteAutomata():
                 result = result + self.__transitions[i].__str__() + ";}"
         return result
 
+    def verifyIfIsDFA(self):
+        for transition in self.__transitions:
+            if len(self.getTransitionsOfSpecifiedStateAndValue(transition.state, transition.value)) > 1:
+                return False
+        return True
+
     def getTransitionsOfSpecifiedStateAndValue(self, state, value):
         result = [ ]
         for transition in self.__transitions:
@@ -91,14 +97,22 @@ class FiniteAutomata():
         return result
 
     def verifySequence(self, sequence):
+        if self.verifyIfIsDFA() == False:
+            print('It is not a deterministic automaton')
+        if sequence == '':
+            if self.__initialState in self.__setOfFinalStates:
+                return True
+            return False
         position = 0
         queue = [[self.__initialState, position]]
-        while position < len(sequence) and len(queue) > 0:
+        while len(queue) > 0:
             currentState, position = queue.pop(0)
             if position == len(sequence)  and currentState in self.__setOfFinalStates:
                 return True
             if position == len(sequence) and len(queue) == 0:
                 return False
+            elif position == len(sequence) and len(queue) > 0:
+                continue
             result = self.getTransitionsOfSpecifiedStateAndValue(currentState, sequence[position])
             if result != None:
                 for i in result:
@@ -119,6 +133,12 @@ class Handler:
         print('5 -> Display the list of transitions !')
         print('6 -> Verify if is a valid sequence !')
 
+    def checkDuplicateTransition(self, list, transition):
+        for elem in list:
+            if elem.state == transition.state and elem.value == transition.value and elem.resultedState == transition.resultedState:
+                return False
+        return True
+
     def createSet(self, line : string, f):
         line = line[ line.find('{') + 1: line.find('}')]
         line = line.strip()
@@ -136,7 +156,10 @@ class Handler:
                 resultedState = line[line.find('->') + 2: ].strip()
                 state, value = line[line.find('(') + 1 : line.find(')')].split(', ')
                 transition = Transition(state, value, resultedState)
-                result.append(transition)
+                if self.checkDuplicateTransition(result, transition) == True:
+                    result.append(transition)
+                else:
+                    print('Duplicate transition')
             line = f.readline()
         return result
 
@@ -173,7 +196,7 @@ class Handler:
             if command == '3':
                 print('Initial state: ' + finiteAutomata.initialState.__str__())
             if command == '4':
-                print('Set of final states: ' + finiteAutomata.initialState.__str__())
+                print('Set of final states: ' + finiteAutomata.setOfFinalStates.__str__())
             if command == '5':
                 result = 'Transitions: {'
                 transitions = finiteAutomata.transitions
