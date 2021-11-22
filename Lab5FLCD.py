@@ -95,6 +95,12 @@ class Grammar:
     def createStartSymbol(self, line, file):
         return line.strip()
 
+    def isContextFreeGrammar(self):
+        for production in self.__productions:
+            if production.getStart() not in self.__terminals:
+                return False
+        return True
+
     def __str__(self):
         result = 'non-terminals = {'
         toList = list(self.__nonTerminals)
@@ -133,6 +139,8 @@ class Grammar:
             line = file.readline().split('=')
             result = map[line[0].strip()][0](line[1].strip(), file)
             map[line[0].strip()][1](result)
+        if self.isContextFreeGrammar() == False:
+            print('It is not a context free grammar')
         print(self.__str__())
 
 
