@@ -96,7 +96,6 @@ public class LR0Parser {
                         Action action = new Action(ActionType.REDUCE, index);
                         for (String str : terminals) {
                             if (this.actionTable[i].get(str) != null) {
-                                System.out.println("it has a REDUCE-" + this.actionTable[i].get(str).getType() + " confilct in state " + i);
                                 return false;
                             } else {
                                 this.actionTable[i].put(str, action);
