@@ -1,0 +1,8 @@
+nonTerminals = { S, A, B}
+terminals = {a, b, c}
+startSymbol = S
+productions = {
+            S -> aS | bS | a
+            A -> aB | a
+            B -> b
+}
