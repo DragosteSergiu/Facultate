@@ -1,0 +1,35 @@
+https://github.com/DragosteSergiu/Facultate/blob/main/Lab5FLCD.py
+
+Class Rule is used to represent a production.
+	- It has two fields which are: 'left_side' and 'right_side'.
+	- The field 'left_side' represents the left side of a production
+	and it is a non-terminal.
+	- The field 'right_side' represents the right side of a production
+	and it is represented as a list of terminals and non-terminals.
+	- The class has getters and setters for its fields.
+	- The class overrides the '__str__()' and '__eq__()' methods.
+	- The class has the method 'add_to_right_side()' which adds an
+	element to the field 'right_side'.
+
+Class Grammar is used to represent the grammar.
+	- It has four fields which are: 'non_terminals', 'terminals',
+	'productions', and 'start_symbol'
+	- The fields 'non_terminals' and 'terminals' are represented
+	as a set of strings.
+	- The field 'productions' is represented as a list of Rules.
+	- The field 'start_symbol' is represented as a string.
+	- The class has getters and setters for its fields.
+	- The values of the fields are read from the file using method 
+	'read_grammar()'.
+	- The sets are created using the method 'create_sets()'.
+	- The values of the field 'productions' are created using the 
+	method 'create_productions()'.
+	- The value of the field 'start_symbol' is created using the 
+	method 'create_start_symbol()'.
+	- The class contains a method which checks if the grammar is a
+	context free grammar.
+	- The class has the method 'insert_rule() which inserts 
+	a rule on a specified position.
+	- The class overrides the method '__str__()'. 
+
+

@@ -1,0 +1,27 @@
+https://github.com/DragosteSergiu/Facultate/blob/main/Lab2v2FLCD.py
+
+
+Statement: Implement the Symbol Table (ST) as the specified data structure, with the corresponding operations
+
+Deliverables: class ST(source code) + documentation.
+
+
+Implementation:
+	The class 'Element':
+		- It is used to store an element.
+		- It contains two fields, which are 'position' and 'token'.
+		- The field 'position' represents the PIF.
+		- The field 'token' represents its identifier.
+		- Each field has a getter and a setter.
+		- The class has a 'toString' method.
+		
+	The class 'SortedTable':
+		- It is used to store the all elements of the sorted table.
+		- It contains a field, which is 'table'.
+		- The field 'table' is represented as a list.
+		- The class contains the method 'addElement' which takes one paramenter, and it appends the new created element to the table.
+		- There is a method which returns the position where the new element needs to be added. This function is used in the insert function.
+		- The insert function is used in the function 'addElement', and practically this function contains the logic.
+		- The class has a 'toString' method.
+		
+	

@@ -1,0 +1,22 @@
+-Syntax:
+	Rules of the mini-language:
+		program := "VAR" declarationList; compoundStatement "."
+		declarationList := declaration | declaration ";" declarationList
+		declaration := identifier ":" type
+		type := nonArrayType | arrayDeclaration
+		nonArrayType := 'integer' | 'char' | 'record'
+		arrayDeclaration := "ARRAY" "[number]" "OF" nonArrayType  
+		compoundStatement := "BEGIN" statementList "END"
+		statementList := statement | statement ";" statementList
+		statement := assignStatement | ioStatement | ifStatement | whileStatement
+		assignStatement := identifier ":=" expression
+		expression := numericExpression
+		numericExpression := numericExpression numericOperator numericTerm | numericTerm
+		numericOperator := "+" | "-" | "*" | "/"
+		numericTerm := constant | identifier
+		ioStatement := "READ" "("identifier")" | "WRITE" "("identifier")" 
+		ifStatement := "IF" condition "THEN" compoundStatement ["ELSE" compoundStatement]
+		whileStatement := "WHILE" condition "DO" compoundStatement
+		condition := expression relation expression
+		relation := "<" | "<=" | "=" | "<>" | ">=" | ">"
+	

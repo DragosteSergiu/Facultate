@@ -1,0 +1,17 @@
+PROGRAM
+VAR a: INTEGER;
+VAR b_a: INTEGER;
+VAR result: INTEGER;
+VAR i: INTEGER;
+BEGINN
+	READ(a);
+	READ(b);
+        result := 0;
+	i := 0;
+	WHILE i < b DO
+	BEGINN
+		result := result * a;
+		i := i + 1;
+	END
+	WRITE(result);
+END
